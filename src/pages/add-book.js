@@ -55,6 +55,10 @@ export async function renderAddBookPage(container, editIsbn = null) {
         <input type="number" id="book-year" value="${book?.publish_year || ''}" min="1000" max="2099" />
       </div>
       <div class="form-group">
+        <label for="book-copies">副本数量</label>
+        <input type="number" id="book-copies" value="${book?.total_copies ?? 1}" min="1" max="99" />
+      </div>
+      <div class="form-group">
         <label for="book-tags">标签（逗号分隔）</label>
         <input type="text" id="book-tags" value="${escapeHtml((book?.tags || []).join(', '))}" />
       </div>
@@ -78,11 +82,15 @@ function attachFormListeners(isEdit, editIsbn) {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn.disabled) return;
+
     const isbn = document.getElementById('book-isbn').value.trim();
     const title = document.getElementById('book-title').value.trim();
     const authorsStr = document.getElementById('book-authors').value.trim();
     const publisher = document.getElementById('book-publisher').value.trim();
     const year = parseInt(document.getElementById('book-year').value) || null;
+    const copies = parseInt(document.getElementById('book-copies').value) || 1;
     const tagsStr = document.getElementById('book-tags').value.trim();
     const coverUrl = document.getElementById('book-cover').value.trim();
 
@@ -105,11 +113,12 @@ function attachFormListeners(isEdit, editIsbn) {
       authors,
       publisher: publisher || null,
       publish_year: year,
+      total_copies: copies,
+      available_copies: copies,
       tags,
       cover_url: coverUrl || null,
     };
 
-    const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
     btn.textContent = '提交中…';
     errorEl.style.display = 'none';

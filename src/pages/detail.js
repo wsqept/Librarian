@@ -54,11 +54,10 @@ export async function renderBookDetail(container, isbn) {
             ${book.publish_year ? `<div class="detail-field"><span class="detail-field-label">出版年份：</span>${book.publish_year}</div>` : ''}
             ${book.tags?.length ? `<div class="detail-field"><span class="detail-field-label">标签：</span>${book.tags.map(t => escapeHtml(t)).join('、')}</div>` : ''}
             <div class="detail-field">
-              <span class="detail-field-label">状态：</span>${renderStatusBadge(currentBorrow)}
+              <span class="detail-field-label">可借：</span>${book.available_copies ?? 1} / ${book.total_copies ?? 1} 本
             </div>
-            ${renderBorrowerInfo(currentBorrow)}
             <div class="action-bar">
-              ${renderBorrowActions(currentBorrow, isbn, authed)}
+              ${renderBorrowActions(currentBorrow, book, authed)}
               ${authed ? renderAdminActions(book, currentBorrow) : ''}
             </div>
           </div>
@@ -99,22 +98,13 @@ function renderStatusBadge(record) {
   }
 }
 
-function renderBorrowerInfo(record) {
-  if (!record) return '';
-  if (record.status === 'borrow_requested' || record.status === 'borrowed' || record.status === 'return_requested') {
-    return `
-      <div class="detail-field">
-        <span class="detail-field-label">借阅人：</span>${escapeHtml(record.member_name)}（${escapeHtml(record.member_student_id)}）
-      </div>
-      ${record.borrowed_at ? `<div class="detail-field"><span class="detail-field-label">借阅日期：</span>${formatDate(record.borrowed_at)}</div>` : ''}
-    `;
-  }
-  return '';
-}
+function renderBorrowActions(record, book, authed) {
+  const hasCopies = (book.available_copies ?? 1) > 0;
 
-function renderBorrowActions(record, isbn, authed) {
   if (!record || record.status === 'returned') {
-    // Available — anyone can request borrow
+    if (!hasCopies) {
+      return `<p style="color: var(--color-danger);">已全部借出</p>`;
+    }
     return `<button class="btn btn-primary" id="btn-request-borrow">申请借阅</button>`;
   }
   if (record.status === 'borrowed') {
@@ -218,7 +208,11 @@ function showBorrowForm(isbn) {
     </div>
   `;
 
-  document.getElementById('btn-submit-borrow').addEventListener('click', () => handleBorrowSubmit(isbn));
+  document.getElementById('btn-submit-borrow').addEventListener('click', async () => {
+    const { guardSubmit } = await import('../lib/guard.js');
+    const btn = document.getElementById('btn-submit-borrow');
+    await guardSubmit(btn, () => handleBorrowSubmit(isbn));
+  });
   document.getElementById('btn-cancel-borrow').addEventListener('click', () => {
     // Re-render to reset
     import('./books.js').then(() => {
@@ -274,7 +268,11 @@ function showReturnVerifyForm(record) {
     </div>
   `;
 
-  document.getElementById('btn-verify-return').addEventListener('click', () => handleReturnVerify(record));
+  document.getElementById('btn-verify-return').addEventListener('click', async () => {
+    const { guardSubmit } = await import('../lib/guard.js');
+    const btn = document.getElementById('btn-verify-return');
+    await guardSubmit(btn, () => handleReturnVerify(record));
+  });
   document.getElementById('btn-cancel-return').addEventListener('click', () => {
     renderBookDetail(document.getElementById('app'), record.book_isbn);
   });
