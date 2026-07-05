@@ -150,21 +150,8 @@ export async function createBorrowRequest({ bookIsbn, memberName, memberStudentI
   return data;
 }
 
-export async function requestReturn(recordId) {
-  // First fetch current status to guard against stale/duplicate requests
-  const { data: current } = await supabase()
-    .from('borrow_records')
-    .select('status')
-    .eq('id', recordId)
-    .single();
-
-  if (!current) {
-    throw new Error('借阅记录不存在，请刷新页面');
-  }
-  if (current.status !== 'borrowed') {
-    throw new Error('该书状态已变更，请刷新页面后重试');
-  }
-
+export async function requestReturn(recordId, memberName, memberStudentId) {
+  // Atomic update: only succeeds if status=borrowed AND identity matches
   const { data, error } = await supabase()
     .from('borrow_records')
     .update({
@@ -172,10 +159,18 @@ export async function requestReturn(recordId) {
       return_requested_at: new Date().toISOString(),
     })
     .eq('id', recordId)
+    .eq('status', 'borrowed')
+    .eq('member_name', memberName)
+    .eq('member_student_id', memberStudentId)
     .select()
     .single();
 
-  if (error) throw error;
+  if (error) {
+    if (error.code === 'PGRST116') {
+      throw new Error('身份验证失败或该书状态已变更，请刷新页面后重试');
+    }
+    throw error;
+  }
   return data;
 }
 
@@ -203,19 +198,8 @@ export async function confirmBorrow(recordId) {
 
   if (error) throw error;
 
-  // Decrement available copies
-  const { data: book } = await supabase()
-    .from('books')
-    .select('available_copies')
-    .eq('isbn', record.book_isbn)
-    .single();
-
-  if (book) {
-    await supabase()
-      .from('books')
-      .update({ available_copies: Math.max(0, book.available_copies - 1) })
-      .eq('isbn', record.book_isbn);
-  }
+  // Atomically decrement available copies
+  await supabase().rpc('decrement_copy', { book_isbn: record.book_isbn });
 
   return data;
 }
@@ -243,19 +227,8 @@ export async function confirmReturn(recordId) {
 
   if (error) throw error;
 
-  // Increment available copies
-  const { data: book } = await supabase()
-    .from('books')
-    .select('available_copies, total_copies')
-    .eq('isbn', record.book_isbn)
-    .single();
-
-  if (book) {
-    await supabase()
-      .from('books')
-      .update({ available_copies: Math.min(book.total_copies, book.available_copies + 1) })
-      .eq('isbn', record.book_isbn);
-  }
+  // Atomically increment available copies
+  await supabase().rpc('increment_copy', { book_isbn: record.book_isbn });
 
   return data;
 }

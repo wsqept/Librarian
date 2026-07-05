@@ -296,7 +296,7 @@ async function handleReturnVerify(record) {
     const { requestReturn } = await import('../lib/data.js');
     const { showToast } = await import('../lib/state.js');
 
-    await requestReturn(record.id);
+    await requestReturn(record.id, record.member_name, record.member_student_id);
     showToast('归还申请已提交，等待管理员确认');
     setTimeout(() => renderBookDetail(document.getElementById('app'), record.book_isbn), 500);
   } catch (err) {
