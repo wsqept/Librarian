@@ -156,7 +156,6 @@ function renderBorrowHistory(records) {
 
   const items = records.map((r) => `
     <li class="timeline-item">
-      <div><span class="borrower">${escapeHtml(r.member_name)}</span>（${escapeHtml(r.member_student_id)}）</div>
       <div class="meta">
         借阅日期：${formatDate(r.borrowed_at || r.confirmed_at || r.requested_at)}
         ${r.returned_at ? ` · 归还日期：${formatDate(r.returned_at)}` : r.status === 'borrowed' ? ' · <span style="color:var(--color-danger);">借阅中</span>' : ''}
@@ -187,7 +186,7 @@ function attachBorrowListeners(isbn, currentBorrow) {
     btnBorrow.addEventListener('click', () => showBorrowForm(isbn, 'borrow'));
   }
   if (btnReturn) {
-    btnReturn.addEventListener('click', () => handleRequestReturn(currentBorrow));
+    btnReturn.addEventListener('click', () => showReturnVerifyForm(currentBorrow));
   }
   if (btnConfirmBorrow) {
     btnConfirmBorrow.addEventListener('click', () => handleConfirmBorrow(currentBorrow));
@@ -262,7 +261,39 @@ async function handleBorrowSubmit(isbn) {
   }
 }
 
-async function handleRequestReturn(record) {
+function showReturnVerifyForm(record) {
+  const actionBar = document.querySelector('.action-bar');
+  if (!actionBar) return;
+
+  actionBar.innerHTML = `
+    <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+      <input type="text" id="return-name" placeholder="借阅时填写的姓名" style="padding:0.5rem;border:1px solid var(--color-border);border-radius:var(--radius);" />
+      <input type="text" id="return-student-id" placeholder="借阅时填写的学号" style="padding:0.5rem;border:1px solid var(--color-border);border-radius:var(--radius);" />
+      <button class="btn btn-primary" id="btn-verify-return">验证并申请归还</button>
+      <button class="btn" id="btn-cancel-return">取消</button>
+    </div>
+  `;
+
+  document.getElementById('btn-verify-return').addEventListener('click', () => handleReturnVerify(record));
+  document.getElementById('btn-cancel-return').addEventListener('click', () => {
+    renderBookDetail(document.getElementById('app'), record.book_isbn);
+  });
+}
+
+async function handleReturnVerify(record) {
+  const name = document.getElementById('return-name').value.trim();
+  const studentId = document.getElementById('return-student-id').value.trim();
+
+  if (!name || !studentId) {
+    alert('请填写姓名和学号');
+    return;
+  }
+
+  if (name !== record.member_name || studentId !== record.member_student_id) {
+    alert('姓名或学号不匹配，无法确认是本人操作');
+    return;
+  }
+
   try {
     const { requestReturn } = await import('../lib/data.js');
     const { showToast } = await import('../lib/state.js');
