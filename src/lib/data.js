@@ -125,6 +125,20 @@ export async function createBorrowRequest({ bookIsbn, memberName, memberStudentI
 }
 
 export async function requestReturn(recordId) {
+  // First fetch current status to guard against stale/duplicate requests
+  const { data: current } = await supabase()
+    .from('borrow_records')
+    .select('status')
+    .eq('id', recordId)
+    .single();
+
+  if (!current) {
+    throw new Error('借阅记录不存在，请刷新页面');
+  }
+  if (current.status !== 'borrowed') {
+    throw new Error('该书状态已变更，请刷新页面后重试');
+  }
+
   const { data, error } = await supabase()
     .from('borrow_records')
     .update({
