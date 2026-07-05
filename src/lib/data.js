@@ -110,6 +110,10 @@ export async function loadActiveBorrows() {
 }
 
 export async function createBorrowRequest({ bookIsbn, memberName, memberStudentId }) {
+  // Input validation
+  if (!memberName || memberName.length > 10) throw new Error('姓名不能超过10个字符');
+  if (!memberStudentId || !/^\d+$/.test(memberStudentId) || memberStudentId.length > 15) throw new Error('学号格式不正确');
+
   // Check if this person already has an active borrow for this book
   const { data: existing } = await supabase()
     .from('borrow_records')

@@ -195,15 +195,26 @@ function renderPendingRequests(container, requests) {
 
 async function saveCellEdit(cell, span, input) {
   const newValue = input.value.trim();
+  const field = cell.dataset.field;
+
   if (!newValue) {
-    input.value = span.textContent; // revert
+    input.value = span.textContent;
     input.classList.add('hidden');
     span.classList.remove('hidden');
     return;
   }
 
+  // Validate
+  if (field === 'member_name' && newValue.length > 10) {
+    showToast('姓名不能超过10个字符');
+    return;
+  }
+  if (field === 'member_student_id') {
+    if (!/^\d+$/.test(newValue)) { showToast('学号只能包含数字'); return; }
+    if (newValue.length > 15) { showToast('学号不能超过15位'); return; }
+  }
+
   const recordId = cell.dataset.id;
-  const field = cell.dataset.field;
 
   try {
     // Get the other field's current value

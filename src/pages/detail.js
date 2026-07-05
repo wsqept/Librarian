@@ -225,10 +225,11 @@ async function handleBorrowSubmit(isbn) {
   const name = document.getElementById('borrow-name').value.trim();
   const studentId = document.getElementById('borrow-student-id').value.trim();
 
-  if (!name || !studentId) {
-    alert('请填写姓名和学号');
-    return;
-  }
+  const { validateName, validateStudentId } = await import('../lib/validate.js');
+  const nameErr = validateName(name);
+  if (nameErr) { alert(nameErr); return; }
+  const idErr = validateStudentId(studentId);
+  if (idErr) { alert(idErr); return; }
 
   try {
     const { createBorrowRequest, loadCurrentBorrowStatus } = await import('../lib/data.js');
@@ -286,6 +287,7 @@ async function handleReturnVerify(record) {
     alert('请填写姓名和学号');
     return;
   }
+  if (!/^\d+$/.test(studentId)) { alert('学号只能包含数字'); return; }
 
   if (name !== record.member_name || studentId !== record.member_student_id) {
     alert('姓名或学号不匹配，无法确认是本人操作');
