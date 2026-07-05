@@ -37,8 +37,6 @@ export async function renderAddBookPage(container, editIsbn = null) {
       <div class="form-group">
         <label for="book-isbn">ISBN *</label>
         <input type="text" id="book-isbn" value="${escapeHtml(book?.isbn || '')}" placeholder="978-xxx" ${isEdit ? 'readonly' : ''} required />
-        ${!isEdit ? '<button type="button" class="btn" id="btn-fetch-isbn" style="margin-top:0.5rem;">自动获取</button>' : ''}
-        <div id="fetch-status" style="font-size:0.8rem;margin-top:0.25rem;color:var(--color-text-muted);"></div>
       </div>
       <div class="form-group">
         <label for="book-title">书名 *</label>
@@ -71,11 +69,6 @@ export async function renderAddBookPage(container, editIsbn = null) {
 
   // Attach listeners
   attachFormListeners(isEdit, editIsbn);
-
-  // ISBN auto-fetch button
-  if (!isEdit) {
-    document.getElementById('btn-fetch-isbn')?.addEventListener('click', () => handleIsbnFetch());
-  }
 }
 
 function attachFormListeners(isEdit, editIsbn) {
@@ -143,34 +136,6 @@ function attachFormListeners(isEdit, editIsbn) {
       btn.textContent = isEdit ? '保存修改' : '添加图书';
     }
   });
-}
-
-async function handleIsbnFetch() {
-  const isbn = document.getElementById('book-isbn').value.trim();
-  if (!isbn) {
-    document.getElementById('fetch-status').textContent = '请先输入 ISBN';
-    return;
-  }
-
-  const statusEl = document.getElementById('fetch-status');
-  statusEl.textContent = '查询中…';
-
-  try {
-    const { fetchBookFromIsbn } = await import('../lib/isbn.js');
-    const info = await fetchBookFromIsbn(isbn);
-
-    if (info.title) document.getElementById('book-title').value = info.title;
-    if (info.authors?.length) document.getElementById('book-authors').value = info.authors.join(', ');
-    if (info.publisher) document.getElementById('book-publisher').value = info.publisher;
-    if (info.publishYear) document.getElementById('book-year').value = info.publishYear;
-    if (info.coverUrl) document.getElementById('book-cover').value = info.coverUrl;
-
-    statusEl.textContent = '已填充信息，请核对';
-    statusEl.style.color = 'var(--color-success)';
-  } catch (err) {
-    statusEl.textContent = `查询失败：${err.message}`;
-    statusEl.style.color = 'var(--color-danger)';
-  }
 }
 
 function showError(el, message) {
