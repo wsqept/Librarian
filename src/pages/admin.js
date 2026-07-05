@@ -5,6 +5,12 @@ import { showToast } from '../lib/state.js';
 let subscription = null;
 
 export async function renderAdminPage(container) {
+  // Clean up previous subscription to prevent leaks
+  if (subscription) {
+    subscription.unsubscribe();
+    subscription = null;
+  }
+
   const authed = await isAuthenticated().catch(() => false);
   if (!authed) {
     container.innerHTML = `
@@ -92,8 +98,8 @@ function renderPendingRequests(container, requests) {
       <td>${r.status === 'borrow_requested' ? '📥 申请借阅' : '📤 申请归还'}</td>
       <td>${formatDateTime(r.requested_at)}</td>
       <td>
-        <button class="btn btn-primary btn-sm" data-action="confirm" data-id="${r.id}" data-type="${r.status}">确认</button>
-        <button class="btn btn-danger btn-sm" data-action="reject" data-id="${r.id}" data-type="${r.status}">拒绝</button>
+        <button class="btn btn-primary" data-action="confirm" data-id="${r.id}" data-type="${r.status}">确认</button>
+        <button class="btn btn-danger" data-action="reject" data-id="${r.id}" data-type="${r.status}">拒绝</button>
       </td>
     </tr>
   `).join('');

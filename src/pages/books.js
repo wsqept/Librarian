@@ -2,9 +2,6 @@ import { loadBooks, loadCurrentBorrowStatus } from '../lib/data.js';
 import { navigate } from '../lib/router.js';
 import { initSearch, renderSearchBar } from './search.js';
 
-let booksCache = [];
-let statusMapCache = new Map();
-
 export async function renderBookList(container) {
   container.innerHTML = `
     <div class="loading">
@@ -38,10 +35,6 @@ export async function renderBookList(container) {
         }
       })
     );
-
-    // Cache for search/filter
-    booksCache = books;
-    statusMapCache = statusMap;
 
     const cards = books
       .map((book) => renderBookCard(book, statusMap.get(book.isbn)))

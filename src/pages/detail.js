@@ -83,7 +83,7 @@ export async function renderBookDetail(container, isbn) {
 
 function renderCover(book) {
   if (book.cover_url) {
-    return `<img class="detail-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" onerror="this.replaceWith(coverPlaceholder())" />`;
+    return `<img class="detail-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" onerror="this.outerHTML='<div class=\\'detail-cover-placeholder\\'>📖</div>'" />`;
   }
   return '<div class="detail-cover-placeholder">📖</div>';
 }
