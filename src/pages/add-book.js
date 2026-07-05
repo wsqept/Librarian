@@ -37,7 +37,7 @@ export async function renderAddBookPage(container, editIsbn = null) {
       <div class="form-group">
         <label for="book-isbn">ISBN *</label>
         <input type="text" id="book-isbn" value="${escapeHtml(book?.isbn || '')}" placeholder="978-xxx" ${isEdit ? 'readonly' : ''} required />
-        ${!isEdit ? '<button type="button" class="btn" id="btn-fetch-isbn" style="margin-top:0.5rem;">🔍 自动获取</button>' : ''}
+        ${!isEdit ? '<button type="button" class="btn" id="btn-fetch-isbn" style="margin-top:0.5rem;">自动获取</button>' : ''}
         <div id="fetch-status" style="font-size:0.8rem;margin-top:0.25rem;color:var(--color-text-muted);"></div>
       </div>
       <div class="form-group">

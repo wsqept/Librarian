@@ -83,7 +83,7 @@ function renderPendingRequests(container, requests) {
   if (!requests || requests.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <p style="font-size: 2rem; margin-bottom: 0.5rem;">✅</p>
+        <p style="font-size: 2rem; margin-bottom: 0.5rem;"></p>
         <p>没有待确认的请求</p>
       </div>
     `;
@@ -95,7 +95,7 @@ function renderPendingRequests(container, requests) {
       <td><strong>${escapeHtml(r.books?.title || r.book_isbn)}</strong></td>
       <td>${escapeHtml(r.member_name)}</td>
       <td>${escapeHtml(r.member_student_id)}</td>
-      <td>${r.status === 'borrow_requested' ? '📥 申请借阅' : '📤 申请归还'}</td>
+      <td>${r.status === 'borrow_requested' ? '申请借阅' : '申请归还'}</td>
       <td>${formatDateTime(r.requested_at)}</td>
       <td>
         <button class="btn btn-primary" data-action="confirm" data-id="${r.id}" data-type="${r.status}">确认</button>
@@ -168,7 +168,7 @@ function renderActiveBorrows(container, records) {
   if (!records || records.length === 0) {
     container.innerHTML = `
       <div class="empty-state">
-        <p style="font-size: 2rem; margin-bottom: 0.5rem;">📚</p>
+        <p style="font-size: 2rem; margin-bottom: 0.5rem;"></p>
         <p>当前没有借出中的图书</p>
       </div>
     `;

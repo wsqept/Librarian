@@ -17,7 +17,7 @@ export async function renderBookDetail(container, isbn) {
     if (!book) {
       container.innerHTML = `
         <div class="error-state">
-          <p style="font-size: 2rem; margin-bottom: 0.5rem;">📭</p>
+          <p style="font-size: 2rem; margin-bottom: 0.5rem;"></p>
           <p>该书已被删除或不存在</p>
           <a href="#/" class="btn btn-primary">返回馆藏列表</a>
         </div>
@@ -83,9 +83,9 @@ export async function renderBookDetail(container, isbn) {
 
 function renderCover(book) {
   if (book.cover_url) {
-    return `<img class="detail-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" onerror="this.outerHTML='<div class=\\'detail-cover-placeholder\\'>📖</div>'" />`;
+    return `<img class="detail-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" onerror="this.outerHTML='<div class=\\'detail-cover-placeholder\\'></div>'" />`;
   }
-  return '<div class="detail-cover-placeholder">📖</div>';
+  return '<div class="detail-cover-placeholder"></div>';
 }
 
 function renderStatusBadge(record) {
@@ -151,7 +151,7 @@ function renderAdminActions(book, record) {
 
 function renderBorrowHistory(records) {
   if (!records || records.length === 0) {
-    return '<div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--color-border);"><h3 style="margin-bottom:0.75rem;">📋 借阅历史</h3><p style="color:var(--color-text-muted);">暂无借阅记录</p></div>';
+    return '<div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--color-border);"><h3 style="margin-bottom:0.75rem;">借阅历史</h3><p style="color:var(--color-text-muted);">暂无借阅记录</p></div>';
   }
 
   const items = records.map((r) => `
@@ -165,7 +165,7 @@ function renderBorrowHistory(records) {
 
   return `
     <div style="margin-top:2rem; padding-top:1.5rem; border-top:1px solid var(--color-border);">
-      <h3 style="margin-bottom:0.75rem;">📋 借阅历史（${records.length}条）</h3>
+      <h3 style="margin-bottom:0.75rem;">借阅历史（${records.length}条）</h3>
       <ul class="timeline">${items}</ul>
     </div>
   `;

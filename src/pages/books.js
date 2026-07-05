@@ -16,7 +16,7 @@ export async function renderBookList(container) {
     if (!books || books.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <p style="font-size: 3rem; margin-bottom: 1rem;">📚</p>
+          <p style="font-size: 3rem; margin-bottom: 1rem;"></p>
           <h2>图书馆暂无藏书</h2>
           <p style="color: var(--color-text-muted);">请联系管理员添加图书</p>
         </div>
@@ -69,8 +69,8 @@ export async function renderBookList(container) {
 
 function renderBookCard(book, borrowStatus) {
   const cover = book.cover_url
-    ? `<img class="book-card-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" loading="lazy" onerror="this.parentElement.querySelector('.book-card-cover-placeholder')?.remove(); this.outerHTML='<div class=\\'book-card-cover-placeholder\\'>📖</div>'" />`
-    : '<div class="book-card-cover-placeholder">📖</div>';
+    ? `<img class="book-card-cover" src="${escapeHtml(book.cover_url)}" alt="${escapeHtml(book.title)}" loading="lazy" onerror="this.parentElement.querySelector('.book-card-cover-placeholder')?.remove(); this.outerHTML='<div class=\\'book-card-cover-placeholder\\'></div>'" />`
+    : '<div class="book-card-cover-placeholder"></div>';
 
   const statusLabel = getStatusLabel(borrowStatus);
   const statusClass = getStatusClass(borrowStatus);
@@ -125,7 +125,7 @@ export function renderFilteredList(container, books, statusMap) {
   if (books.length === 0) {
     document.querySelector('.book-grid').innerHTML = `
       <div class="empty-state" style="grid-column: 1/-1;">
-        <p style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</p>
+        <p style="font-size: 2rem; margin-bottom: 0.5rem;"></p>
         <p>未找到匹配的图书</p>
       </div>
     `;
