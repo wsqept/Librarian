@@ -306,7 +306,7 @@ async function handleReject(record, isbn) {
     const { rejectRequest } = await import('../lib/data.js');
     const { showToast } = await import('../lib/state.js');
 
-    await rejectRequest(record.id);
+    await rejectRequest(record.id, record.status);
     showToast('已拒绝请求');
     setTimeout(() => renderBookDetail(document.getElementById('app'), isbn), 500);
   } catch (err) {

@@ -172,14 +172,36 @@ export async function confirmReturn(recordId) {
   return data;
 }
 
-export async function rejectRequest(recordId) {
-  // Delete the request (return to previous state)
-  const { error } = await supabase()
-    .from('borrow_records')
-    .delete()
-    .eq('id', recordId);
+export async function rejectRequest(recordId, currentStatus) {
+  const now = new Date().toISOString();
 
+  if (currentStatus === 'return_requested') {
+    // Reject return → go back to borrowed
+    const { data, error } = await supabase()
+      .from('borrow_records')
+      .update({
+        status: 'borrowed',
+        return_requested_at: null,
+      })
+      .eq('id', recordId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Reject borrow request → set to returned (effectively closed, book available)
+  const { data, error } = await supabase()
+    .from('borrow_records')
+    .update({
+      status: 'returned',
+      returned_at: now,
+    })
+    .eq('id', recordId)
+    .select()
+    .single();
   if (error) throw error;
+  return data;
 }
 
 // ─── Realtime Subscription ──────────────────

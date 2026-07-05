@@ -93,7 +93,7 @@ function renderPendingRequests(container, requests) {
       <td>${formatDateTime(r.requested_at)}</td>
       <td>
         <button class="btn btn-primary btn-sm" data-action="confirm" data-id="${r.id}" data-type="${r.status}">确认</button>
-        <button class="btn btn-danger btn-sm" data-action="reject" data-id="${r.id}">拒绝</button>
+        <button class="btn btn-danger btn-sm" data-action="reject" data-id="${r.id}" data-type="${r.status}">拒绝</button>
       </td>
     </tr>
   `).join('');
@@ -147,7 +147,7 @@ function renderPendingRequests(container, requests) {
       btn.disabled = true;
 
       try {
-        await rejectRequest(id);
+        await rejectRequest(id, btn.dataset.type);
         showToast('已拒绝请求');
         loadTabContent('pending');
       } catch (err) {
